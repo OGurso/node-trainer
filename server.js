@@ -25,7 +25,7 @@ const custom_random = (num) => {
   return parseInt(Math.random() * num);
 };
 
-//the server responds with a
+//the server responds with a complete file.
 app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
@@ -38,6 +38,7 @@ app.get("/api/random", (req, res) => {
   res.send(rand);
 });
 
+//uses the number in the request :num as the maximum number to randomize between
 app.get(`/api/custom_random/:num`, (req, res) => {
   let rand = {
     number: custom_random(req.params.num),
@@ -45,24 +46,25 @@ app.get(`/api/custom_random/:num`, (req, res) => {
   res.send(rand);
 });
 
-app.post("/api/vokaler/:ord", (req, res) => {
-  let ordet = Array.from(req.params.ord.toUpperCase());
+//iterates over the string in :word matches againgst vokaler array and responds with count of the vowels
+app.post("/api/vokaler/:word", (req, res) => {
+  let wordArr = Array.from(req.params.word.toUpperCase());
   let vokaler = ["A", "E", "I", "O", "U", "Y", "Å", "Ä", "Ö"];
-  let antal = ordet.filter((x) => vokaler.includes(x));
+  let antal = wordArr.filter((x) => vokaler.includes(x));
   let response = {
     vokaler: antal.length,
   };
   res.send(response);
 });
 
+//The counter is incremented and saved in a variable each time you visit this endpoint
 let count = 0; //counter för "/counter" endpoint
 app.get("/counter/add", (req, res) => {
   count++;
-  res.send(
-    "The counter is incremented each time you visit this endpoint > <a href='/counter/show'>See the count</a>"
-  );
+  res.send("Count is incremented  <a href='/counter/show'>See the count</a>");
 });
 
+//shows the current count
 app.get("/counter/show", (req, res) => {
   res.send(`${count} <a href='/counter/add'>back to increment</a>`);
 });
@@ -87,7 +89,7 @@ app.get("/db/readall", (req, res) => {
 });
 
 //the todo with the given id in :id section is updated to whatever that's given in the :text section
-app.get("/db/update/:id/:text", (req, res) => {
+app.post("/db/update/:id/:text", (req, res) => {
   let id = req.params.id;
   let text = req.params.text;
   dbConn.query(
@@ -99,7 +101,7 @@ app.get("/db/update/:id/:text", (req, res) => {
 });
 
 //the row with the id that's typed in the endpoint is deleted from the db
-app.get("/db/delete/:id", (req, res) => {
+app.delete("/db/delete/:id", (req, res) => {
   let id = req.params.id;
   dbConn.query(
     "DELETE FROM `todos` WHERE `todos`.`id` = " + id,
