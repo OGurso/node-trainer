@@ -9,14 +9,14 @@ describe("endpoint tests", function () {
     "122912",
     "yooobrååoh",
     "åpweripweiiiiiiiii",
-    "qwe",
+    "qwe1233312111aafsdfasdf",
   ];
 
   const endpoints = [
     {
       url: "http://localhost:3000/",
       statusCode: 200,
-      desc: "Check random number",
+      desc: "Send a HTML file",
       content: "html",
     },
     {
@@ -51,6 +51,31 @@ describe("endpoint tests", function () {
       desc: "View the counter",
       content: "json",
     },
+
+    //TDD- test före func----------------------
+    {
+      url: "http://localhost:3000/api/contentlength/:text",
+      statusCode: 200,
+      desc: "Check content length",
+      content: "json",
+      type: "word",
+      length: "short",
+    },
+    {
+      url: "http://localhost:3000/api/contentlength/:text",
+      statusCode: 200,
+      desc: "Check content length",
+      content: "json",
+      type: "word",
+      length: "short",
+    },
+    {
+      url: "http://localhost:3000/api/dividable/:number",
+      statusCode: 200,
+      desc: "Number dividable by two",
+      content: "json",
+      length: "short",
+    },
   ];
 
   endpoints.forEach((x) => {
@@ -84,11 +109,24 @@ describe("endpoint tests", function () {
               done();
             });
           });
+
+          //TDD ------------------------------->
+          if (x.length == "short") {
+            it("content length should be shorter than 40 chars", function (done) {
+              request(newURL, function (error, response, body) {
+                let length = response.headers["content-length"];
+                expect(response.statusCode).to.equal(x.statusCode);
+                expect(length).to.be.at.most(40);
+                done();
+              });
+            });
+          }
+          // --------------------------
         });
       } else if (x.type == "number") {
         numbers.forEach((num) => {
           let newURL = x.url + num;
-          let parsedNumber = parseInt(num);
+          // let parsedNumber = parseInt(num);
           it("should return a random number between 0 and given number", function (done) {
             request(newURL, function (error, response, body) {
               let randomNumber = JSON.parse(body).number;
@@ -101,43 +139,17 @@ describe("endpoint tests", function () {
           });
         });
       }
+
+      // TDD - tests created before funcs.
+      if (x.length == "short") {
+        it("given number should be dividable by 2", function (done) {
+          request(x.url, function (error, response, body) {
+            let dividedNumber = JSON.parse(body).number;
+            expect(dividedNumber).to.equal(0);
+            done();
+          });
+        });
+      }
     });
   });
-
-  // expect(vowelAmount).to.be.at.least(0);
-  // expect(vowelAmount).to.be.at.most(3);
-
-  // it("return json format data", function (done) {
-  //   request(url, function (error, response, body) {
-  //     var contentType = response.headers["content-type"];
-  //     expect(contentType.includes("application/json"));
-  //     done();
-  //   });
-  // });
-
-  // it("return a number between 0 and 1023", function (done) {
-  //   request(url, function (error, response, body) {
-  //     expect(JSON.parse(body).number >= 0 && JSON.parse(body).number <= 1024);
-  //     done();
-  //   });
-  // });
-
-  // describe("Hex to RGB conversion", function() {
-  //   var url = "http://localhost:3000/hexToRgb?hex=00ff00";
-
-  //   it("returns status 200", function(done) {
-  //     request(url, function(error, response, body) {
-  //       expect(response.statusCode).to.equal(200);
-  //       done();
-  //     });
-  //   });
-
-  //   it("returns the color object with RGB", function(done) {
-  //     request(url, function(error, response, body) {
-  //       //expect(body).to.equal("[0,255,0]");
-  //       expect(JSON.parse(body)).to.deep.equal({ rgb: [0, 255, 0] });
-  //       done();
-  //     });
-  //   });
-  // });
 });

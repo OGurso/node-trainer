@@ -77,7 +77,9 @@ app.get("/counter/show", (req, res) => {
   res.send(response);
 });
 
+// ____________________________________________________
 // SQL/node.js CRUD operations ----------------------->
+
 //create new todo - everything that's written after create/ becomes the text that's saved to the database
 app.post("/db/create/:text", (req, res) => {
   let text = req.params.text;
