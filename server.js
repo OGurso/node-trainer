@@ -20,12 +20,13 @@ var dbConn = mysql.createConnection({
 const custom_random = (num = 100) => {
   return parseInt(Math.random() * num);
 };
-
+/*
 //the server responds with a complete file.
 app.get("/", (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
-
+*/
+app.use(express.static("public")); //servar alla public filer
 //each time this endpoint is called a random number is generated between 0-1023
 app.get("/api/random", (req, res) => {
   let rand = {
@@ -52,12 +53,12 @@ app.get(`/api/custom_random/:num`, (req, res) => {
 });
 
 //iterates over the string in :word matches againgst vokaler array and responds with count of the vowels
-app.get("/api/vokaler/:word", (req, res) => {
+app.get("/api/vowels/:word", (req, res) => {
   let wordArr = Array.from(req.params.word.toUpperCase());
-  let vokaler = ["A", "E", "I", "O", "U", "Y", "Å", "Ä", "Ö"];
-  let antal = wordArr.filter((x) => vokaler.includes(x));
+  let vowels = ["A", "E", "I", "O", "U", "Y", "Å", "Ä", "Ö"];
+  let antal = wordArr.filter((x) => vowels.includes(x));
   let response = {
-    vokaler: antal.length,
+    vowelsAmount: antal.length,
   };
   res.send(response);
 });
@@ -122,12 +123,24 @@ app.delete("/db/delete/:id", (req, res) => {
 });
 // CRUD end-------------------------------
 
-app.get("/counter/show", (req, res) => {
+// TDD endpoints------------------------>
+app.get("/api/contentlength/:text", (req, res) => {
+  let content = req.params.text;
   let response = {
-    currentCount: count,
+    text: content,
   };
   res.send(response);
 });
+app.get("/api/dividable/:number", (req, res) => {
+  let numToDivide = req.params.number;
+  let rest = numToDivide % 2;
+
+  let response = {
+    divided: rest,
+  };
+  res.send(response);
+});
+// ------------------------------------------
 
 app.listen(port, () => {
   console.log(`Server is online & listening to port ${port}.`);

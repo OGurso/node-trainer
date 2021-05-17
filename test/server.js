@@ -2,15 +2,8 @@ const expect = require("chai").expect;
 const request = require("request");
 
 describe("endpoint tests", function () {
-  const numbers = ["423141", "15", "4123", "23", "11", "12123", "32"];
-  const words = [
-    "riqwåpeweoir",
-    "4940eueu",
-    "122912",
-    "yooobrååoh",
-    "åpweripweiiiiiiiii",
-    "qwe1233312111aafsdfasdf",
-  ];
+  const numbers = ["42314", "16", "412241452", "232", "18", "1212", "32"];
+  const words = ["riåeoir", "49ueu", "122912", "yoobråoh", "åpiii", "qw33sdf"];
 
   const endpoints = [
     {
@@ -33,7 +26,7 @@ describe("endpoint tests", function () {
       content: "json",
     },
     {
-      url: "http://localhost:3000/api/vokaler/",
+      url: "http://localhost:3000/api/vowels/",
       statusCode: 200,
       desc: "Check vowel amount in a string",
       type: "word",
@@ -51,10 +44,9 @@ describe("endpoint tests", function () {
       desc: "View the counter",
       content: "json",
     },
-
     //TDD- test före func----------------------
     {
-      url: "http://localhost:3000/api/contentlength/:text",
+      url: "http://localhost:3000/api/contentlength/",
       statusCode: 200,
       desc: "Check content length",
       content: "json",
@@ -62,20 +54,14 @@ describe("endpoint tests", function () {
       length: "short",
     },
     {
-      url: "http://localhost:3000/api/contentlength/:text",
-      statusCode: 200,
-      desc: "Check content length",
-      content: "json",
-      type: "word",
-      length: "short",
-    },
-    {
-      url: "http://localhost:3000/api/dividable/:number",
+      url: "http://localhost:3000/api/dividable/",
       statusCode: 200,
       desc: "Number dividable by two",
       content: "json",
+      type: "number",
       length: "short",
     },
+    // ----------------------------------------------
   ];
 
   endpoints.forEach((x) => {
@@ -100,23 +86,26 @@ describe("endpoint tests", function () {
       if (x.type == "word") {
         words.forEach((ord) => {
           let newURL = x.url + ord;
-          it("should return the vowel count as number", function (done) {
-            request(newURL, function (error, response, body) {
-              let vowelAmount = JSON.parse(body).vokaler;
-              expect(vowelAmount).to.be.a("number");
-              expect(vowelAmount).to.be.at.least(0);
-              expect(response.statusCode).to.equal(x.statusCode);
-              done();
+          if (!x.length) {
+            it("should return the vowel count as number", function (done) {
+              request(newURL, function (error, response, body) {
+                let vowelAmount = JSON.parse(body).vowelsAmount;
+                expect(vowelAmount).to.be.a("number");
+                expect(vowelAmount).to.be.at.least(0);
+                expect(response.statusCode).to.equal(x.statusCode);
+                done();
+              });
             });
-          });
+          }
 
           //TDD ------------------------------->
           if (x.length == "short") {
             it("content length should be shorter than 40 chars", function (done) {
               request(newURL, function (error, response, body) {
                 let length = response.headers["content-length"];
+                let parsedLength = parseInt(length);
                 expect(response.statusCode).to.equal(x.statusCode);
-                expect(length).to.be.at.most(40);
+                expect(parsedLength).to.be.at.most(40);
                 done();
               });
             });
@@ -127,27 +116,29 @@ describe("endpoint tests", function () {
         numbers.forEach((num) => {
           let newURL = x.url + num;
           // let parsedNumber = parseInt(num);
-          it("should return a random number between 0 and given number", function (done) {
-            request(newURL, function (error, response, body) {
-              let randomNumber = JSON.parse(body).number;
-              expect(randomNumber).to.be.at.least(0);
-              expect(randomNumber).to.be.at.most(randomNumber);
-              expect(randomNumber).to.be.a("number");
-              expect(response.statusCode).to.equal(x.statusCode);
-              done();
+          if (!x.length) {
+            it("should return a random number between 0 and given number", function (done) {
+              request(newURL, function (error, response, body) {
+                let randomNumber = JSON.parse(body).number;
+                expect(randomNumber).to.be.at.least(0);
+                expect(randomNumber).to.be.at.most(randomNumber);
+                expect(randomNumber).to.be.a("number");
+                expect(response.statusCode).to.equal(x.statusCode);
+                done();
+              });
             });
-          });
-        });
-      }
+          }
 
-      // TDD - tests created before funcs.
-      if (x.length == "short") {
-        it("given number should be dividable by 2", function (done) {
-          request(x.url, function (error, response, body) {
-            let dividedNumber = JSON.parse(body).number;
-            expect(dividedNumber).to.equal(0);
-            done();
-          });
+          // TDD - tests created before funcs.
+          if (x.length == "short") {
+            it("given number should be dividable by 2", function (done) {
+              request(newURL, function (error, response, body) {
+                let dividedNumber = JSON.parse(body).divided;
+                expect(dividedNumber).to.equal(0);
+                done();
+              });
+            });
+          }
         });
       }
     });
